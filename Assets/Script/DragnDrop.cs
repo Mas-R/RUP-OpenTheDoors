@@ -6,19 +6,17 @@ public class DragnDrop : MonoBehaviour
     private bool _isDragActive = false;
     private Vector2 _screenposition;
     private Vector3 _worldposition;
-    private Door _lastDragged;
     private Vector3 _start;
-
+    private bool bdoor2 = false;
     private void Start()
     {
     }
     private void Update()
     {
         
-        if(_isDragActive && (Input.GetMouseButtonDown(0) || (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Ended)))
-        {
+        if(_isDragActive && (Input.GetMouseButtonUp(0) || (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Ended)))
+        { 
             Drop();
-            
             return;
         }
 
@@ -46,12 +44,24 @@ public class DragnDrop : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(_worldposition, Vector2.zero);
             if(hit.collider != null)
             {
-                Door door = hit.transform.gameObject.GetComponent<Door>();
-                if(door!= null)
+                if(hit.transform.gameObject.GetComponent<Door>()!=null)
                 {
-                    _lastDragged = door;
-                    InitDrag();
+                    Door door = hit.transform.gameObject.GetComponent<Door>();
+                    if (door != null)
+                    {
+                        InitDrag();
+                    }
                 }
+                if (hit.transform.gameObject.GetComponent<Door2>() != null)
+                {
+                    Door2 door2 = hit.transform.gameObject.GetComponent<Door2>();
+                    if (door2 != null)
+                    {
+                        bdoor2 = true;
+                        InitDrag();
+                    }
+                }
+                
             }
         }
     }
@@ -63,21 +73,17 @@ public class DragnDrop : MonoBehaviour
     private void Drop()
     {
         _isDragActive = false;
-        _lastDragged.transform.position = _start;
+        transform.position = _start;
+        if(bdoor2)
+        {
+            LevelManager.activeindex = true;
+        }
+        bdoor2 = false;
     }
-
     private void Drag()
     {
-        _lastDragged.transform.position = new Vector2(_worldposition.x, _worldposition.y);
+        transform.position = new Vector2(_worldposition.x, _worldposition.y);
     }
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if(collision.gameObject.tag.Equals("door"))
-        {
-            Debug.Log(collision.gameObject.tag);
-            Debug.Log("trigger");
-            Destroy(gameObject);
-        }
-        
-    }
+    
+    
 }
